@@ -8,24 +8,27 @@ import (
 
 // Result 统一响应结构体
 type Result struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
+	Success bool        `json:"success"`
+	Code    int         `json:"code"`
+	Msg     string      `json:"msg"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 // Success 成功响应
 func Success(c *gin.Context, data interface{}) {
 	c.JSON(200, Result{
-		Code: constant.ErrCodeSuccess,
-		Msg:  constant.MsgSuccess,
-		Data: data,
+		Success: true,
+		Code:    constant.CodeSuccess,
+		Msg:     constant.MsgSuccess,
+		Data:    data,
 	})
 }
 
 // Fail 失败响应
 func Fail(c *gin.Context, code int, msg string) {
 	c.JSON(200, Result{
-		Code: code,
-		Msg:  msg,
+		Success: false,
+		Code:    code,
+		Msg:     msg,
 	})
 }
