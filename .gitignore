@@ -1,0 +1,54 @@
+
+# 忽略Go编译生成的文件
+*.exe
+*.out
+*.o
+*.so
+*.a
+*.dll
+*.test
+*.prof
+
+
+#package file
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# 忽略Node.js相关文件（Vue 3前端）
+node_modules/
+yarn.lock
+package-lock.json
+
+# 忽略Vue 3构建生成的文件
+dist/
+
+# 忽略测试文件
+coverage/
+test-results/
+
+# 忽略环境变量文件
+.env
+.env.local
+.env.development
+.env.production
+
+#Intellij idea
+.idea/
+/idea/
+*.ipr
+*.iml
+*.iws
+
+# temp file
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+# system ignore
+.DS_Store
+Thumbs.db
