@@ -16,14 +16,30 @@ func SetupRouter(ctrl *controller.Controller) *gin.Engine {
 	r.Use(middleware.Cors()) // 跨域中间件
 
 	// API 版本
-	//api := r.Group("/api")
+	api := r.Group("")
 
-	// 认证相关路由 (公开)
-	//user := api.Group("/user")
+	// 公开路由（无需登录）
+	user := api.Group("/user")
 	{
-		//user.POST("/code", ctrl.UserController.SendCode)
-		//user.POST("/login", ctrl.UserController.Login)
-		//user.GET("/logout", ctrl.UserController.Logout)
+		user.POST("/code", ctrl.UserController.SendCode)
+		user.POST("/login", ctrl.UserController.Login)
+		user.POST("/logout", ctrl.UserController.Logout)
+	}
+
+	// 需要登录的路由（使用JWT鉴权中间件）
+	authApi := api.Group("")
+	authApi.Use(middleware.JwtAuth())
+	{
+		authUser := authApi.Group("/user")
+		{
+			authUser.GET("/me", ctrl.UserController.Me)
+			authUser.GET("/info/:id", ctrl.UserController.Info)
+		}
+
+		authBlog := authApi.Group("/blog")
+		{
+			authBlog.GET("/of/me", ctrl.BlogController.QueryMyBlog)
+		}
 	}
 
 	// 返回 gin引擎

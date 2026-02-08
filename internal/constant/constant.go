@@ -6,7 +6,7 @@ import "time"
 const (
 	CodeSuccess           = 200
 	ErrCodeInvalidParam   = 400
-	ErrCodeUserExist      = 401
+	ErrCodeUnauthorized   = 401
 	ErrCodeUserNotFound   = 402
 	ErrCodePasswordError  = 403
 	ErrCodeTokenInvalid   = 404
@@ -26,9 +26,10 @@ const (
 
 // Redis Key 前缀
 const (
-	LOGIN_CODE_KEY = "login:code:"  // 登录验证码的Redis键前缀
-	LOGIN_USER_KEY = "login:token:" // 登录用户的Redis键前缀
-	CACHE_SHOP_KEY = "cache:shop:"  // 商铺缓存的Redis键前缀
+	LOGIN_CODE_KEY  = "login:code:"  // 登录验证码的Redis键前缀
+	LOGIN_USER_KEY  = "login:token:" // 登录用户的Redis键前缀
+	LOGIN_BLACK_KEY = "login:black:" // Token黑名单前缀（已登出的Token）
+	CACHE_SHOP_KEY  = "cache:shop:"  // 商铺缓存的Redis键前缀
 )
 
 // Redis TTL 过期时间
@@ -36,4 +37,9 @@ const (
 	LOGIN_CODE_TTL = 2 * time.Minute  // 登录验证码过期时间
 	LOGIN_USER_TTL = 30 * time.Minute // 登录用户过期时间
 	CACHE_SHOP_TTL = 30 * time.Minute // 商铺缓存过期时间
+)
+
+// 分页常量
+const (
+	MAX_PAGE_SIZE = 10 // 每页最大记录数
 )

@@ -1,0 +1,45 @@
+package jwt
+
+import (
+	"hmdp-go/internal/config"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+)
+
+// CustomClaims 自定义Claims
+type CustomClaims struct {
+	UserId uint64 `json:"user_id"`
+	jwt.RegisteredClaims
+}
+
+// GenerateToken 生成Token
+func GenerateToken(userId uint64) (string, error) {
+	claims := CustomClaims{
+		UserId: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * time.Duration(config.AppConfig.JWT.Expire))),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(config.AppConfig.JWT.Secret))
+}
+
+// ParseToken 解析Token
+func ParseToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(config.AppConfig.JWT.Secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, err
+}

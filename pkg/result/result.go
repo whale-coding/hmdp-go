@@ -2,6 +2,7 @@ package result
 
 import (
 	"hmdp-go/internal/constant"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +17,7 @@ type Result struct {
 
 // Success 成功响应
 func Success(c *gin.Context, data interface{}) {
-	c.JSON(200, Result{
+	c.JSON(http.StatusOK, Result{
 		Success: true,
 		Code:    constant.CodeSuccess,
 		Msg:     constant.MsgSuccess,
@@ -26,7 +27,7 @@ func Success(c *gin.Context, data interface{}) {
 
 // Fail 失败响应
 func Fail(c *gin.Context, code int, msg string) {
-	c.JSON(200, Result{
+	c.JSON(http.StatusOK, Result{
 		Success: false,
 		Code:    code,
 		Msg:     msg,
