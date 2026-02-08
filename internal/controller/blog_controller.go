@@ -15,6 +15,8 @@ import (
 // BlogController 博客控制器接口
 type BlogController interface {
 	QueryMyBlog(ctx *gin.Context)
+	QueryHotBlog(ctx *gin.Context)
+	QueryBlogById(ctx *gin.Context)
 }
 
 // blogController 博客控制器实现
@@ -52,6 +54,61 @@ func (c *blogController) QueryMyBlog(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("查询博客列表失败,用户ID: %d,错误: %v\n", userId, err)
 		result.Fail(ctx, constant.ErrCodeServerInternal, "查询博客列表失败")
+		return
+	}
+
+	result.Success(ctx, res)
+}
+
+// 查看热门探店笔记
+func (c *blogController) QueryHotBlog(ctx *gin.Context) {
+	// 从Context获取用户ID（封装的工具函数）
+	userId, ok := util.GetUserId(ctx)
+	if !ok {
+		result.Fail(ctx, constant.ErrCodeUnauthorized, "未获取到用户信息，请重新登录")
+		return
+	}
+	// 1. 解析分页参数 current
+	var page model.PaginationRequest
+	currentStr := ctx.Query("current")
+	if current, err := strconv.Atoi(currentStr); err == nil && current > 0 {
+		page.PageNo = current
+	}
+	// 设置默认值
+	page.SetDefault()
+
+	// 2. 调用服务层查询博客列表
+	res, err := c.svc.BlogService.QueryHotBlog(userId, &page)
+	if err != nil {
+		log.Printf("查询热门探店笔记失败,错误: %v\n", err)
+	}
+
+	// 3. 返回结果
+	result.Success(ctx, res)
+}
+
+// 查看笔记详情
+func (c *blogController) QueryBlogById(ctx *gin.Context) {
+	// 从Context获取用户ID（封装的工具函数）
+	userId, ok := util.GetUserId(ctx)
+	if !ok {
+		result.Fail(ctx, constant.ErrCodeUnauthorized, "未获取到用户信息，请重新登录")
+		return
+	}
+	// 1. 从路径参数获取博客ID
+	idStr := ctx.Param("id")
+	id, err := util.StringToUint64(idStr)
+	if err != nil {
+		result.Fail(ctx, constant.ErrCodeInvalidParam, "博客ID参数错误")
+		return
+	}
+	log.Printf("查询笔记详情,博客ID: %d\n", id)
+
+	// 2. 调用服务层查询博客详情
+	res, err := c.svc.BlogService.QueryBlogById(userId, id)
+	if err != nil {
+		log.Printf("查询笔记详情失败,博客ID: %d,错误: %v\n", id, err)
+		result.Fail(ctx, constant.ErrCodeServerInternal, "查询笔记详情失败")
 		return
 	}
 

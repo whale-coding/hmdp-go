@@ -20,3 +20,8 @@ func GetUserId(c *gin.Context) (uint64, bool) {
 func StringToUint64(s string) (uint64, error) {
 	return strconv.ParseUint(s, 10, 64)
 }
+
+// Uint64ToString 将 uint64 转换为字符串
+func Uint64ToString(u uint64) string {
+	return strconv.FormatUint(u, 10)
+}

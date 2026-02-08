@@ -30,6 +30,7 @@ const (
 	LOGIN_USER_KEY  = "login:token:" // 登录用户的Redis键前缀
 	LOGIN_BLACK_KEY = "login:black:" // Token黑名单前缀（已登出的Token）
 	CACHE_SHOP_KEY  = "cache:shop:"  // 商铺缓存的Redis键前缀
+	BLOG_LIKED_KEY  = "blog:liked:"  // 博客点赞用户集合前缀，后面跟博客ID
 )
 
 // Redis TTL 过期时间
