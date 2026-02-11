@@ -17,6 +17,7 @@ type BlogController interface {
 	QueryMyBlog(ctx *gin.Context)
 	QueryHotBlog(ctx *gin.Context)
 	QueryBlogById(ctx *gin.Context)
+	QueryBlogLikes(ctx *gin.Context)
 }
 
 // blogController 博客控制器实现
@@ -109,6 +110,28 @@ func (c *blogController) QueryBlogById(ctx *gin.Context) {
 	if err != nil {
 		log.Printf("查询笔记详情失败,博客ID: %d,错误: %v\n", id, err)
 		result.Fail(ctx, constant.ErrCodeServerInternal, "查询笔记详情失败")
+		return
+	}
+
+	result.Success(ctx, res)
+}
+
+// 查看博客点赞的TopN的用户集合
+func (c *blogController) QueryBlogLikes(ctx *gin.Context) {
+	// 1. 从路径参数获取博客ID
+	idStr := ctx.Param("id")
+	id, err := util.StringToUint64(idStr)
+	if err != nil {
+		result.Fail(ctx, constant.ErrCodeInvalidParam, "博客ID参数错误")
+		return
+	}
+	log.Printf("查询博客点赞的TopN的用户集合,博客ID: %d\n", id)
+
+	// 2. 调用服务层查询博客点赞的TopN的用户集合
+	res, err := c.svc.BlogService.QueryBlogLikes(id)
+	if err != nil {
+		log.Printf("查询博客点赞的TopN的用户集合失败,博客ID: %d,错误: %v\n", id, err)
+		result.Fail(ctx, constant.ErrCodeServerInternal, "查询博客点赞的TopN的用户集合失败")
 		return
 	}
 

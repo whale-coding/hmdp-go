@@ -14,6 +14,7 @@ type BlogService interface {
 	QueryMyBlog(userID uint64, page *model.PaginationRequest) ([]*model.Blog, error)
 	QueryHotBlog(userID uint64, page *model.PaginationRequest) ([]*model.Blog, error)
 	QueryBlogById(userID uint64, id uint64) (*model.Blog, error)
+	QueryBlogLikes(blogId uint64) ([]*model.User, error)
 }
 
 // blogService 博客服务实现
@@ -95,4 +96,35 @@ func (s *blogService) isBlogLiked(userId uint64, blog *model.Blog) {
 	}
 	// 2. 设置是否被点赞
 	blog.IsLike = score != 0
+}
+
+// QueryBlogLikes 查询博客点赞的TopN的用户集合
+func (s *blogService) QueryBlogLikes(blogId uint64) ([]*model.User, error) {
+	// 1. 从Redis中查询博客点赞的TopN的用户ID集合
+	key := constant.BLOG_LIKED_KEY + util.Uint64ToString(blogId)
+	userIdStrs, err := redisutil.ZRevRange(key, 0, 4)
+	if err != nil {
+		log.Printf("查询Redis点赞记录失败,Key: %s,错误: %v\n", key, err)
+		return nil, err
+	}
+	if len(userIdStrs) == 0 {
+		return []*model.User{}, nil
+	}
+
+	// 2. 根据用户ID集合查询用户信息
+	var users []*model.User
+	for _, userIdStr := range userIdStrs {
+		userId, err := util.StringToUint64(userIdStr)
+		if err != nil {
+			log.Printf("用户ID转换失败,用户ID字符串: %s,错误: %v\n", userIdStr, err)
+			continue
+		}
+		user, err := s.repo.UserRepo.FindByID(userId)
+		if err != nil {
+			log.Printf("查询用户信息失败,用户ID: %d,错误: %v\n", userId, err)
+			continue
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }

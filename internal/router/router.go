@@ -41,11 +41,23 @@ func SetupRouter(ctrl *controller.Controller) *gin.Engine {
 			authBlog.GET("/of/me", ctrl.BlogController.QueryMyBlog)
 			authBlog.GET("/hot", ctrl.BlogController.QueryHotBlog)
 			authBlog.GET("/:id", ctrl.BlogController.QueryBlogById)
+			authBlog.GET("/likes/:id", ctrl.BlogController.QueryBlogLikes)
 		}
 
 		authShopType := authApi.Group("/shop-type")
 		{
 			authShopType.GET("/list", ctrl.ShopTypeController.GetShopTypeList)
+		}
+
+		shop := authApi.Group("/shop")
+		{
+			shop.GET("/of/type", ctrl.ShopController.QueryShopByType)
+			shop.GET("/:id", ctrl.ShopController.GetShopById)
+		}
+
+		voucher := authApi.Group("/voucher")
+		{
+			voucher.GET("/list/:id", ctrl.VoucherController.GetVoucherByShopId)
 		}
 	}
 
