@@ -10,6 +10,8 @@ import (
 type ShopRepository interface {
 	FindByTypeIDWithPage(typeID uint64, offset, limit int) ([]*model.Shop, error)
 	FindByID(id uint64) (*model.Shop, error)
+	CreateShop(shop *model.Shop) error
+	UpdateShop(shop *model.Shop) error
 }
 
 // shopRepository 商铺仓库实现
@@ -44,4 +46,14 @@ func (r *shopRepository) FindByID(id uint64) (*model.Shop, error) {
 		return nil, err
 	}
 	return &shop, nil
+}
+
+// CreateShop 创建商铺
+func (r *shopRepository) CreateShop(shop *model.Shop) error {
+	return r.db.Create(shop).Error
+}
+
+// UpdateShop 更新商铺信息
+func (r *shopRepository) UpdateShop(shop *model.Shop) error {
+	return r.db.Save(shop).Error
 }

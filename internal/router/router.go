@@ -26,6 +26,19 @@ func SetupRouter(ctrl *controller.Controller) *gin.Engine {
 		user.POST("/logout", ctrl.UserController.Logout)
 	}
 
+	shopType := api.Group("/shop-type")
+	{
+		shopType.GET("/list", ctrl.ShopTypeController.GetShopTypeList)
+	}
+
+	shop := api.Group("/shop")
+	{
+		shop.GET("/of/type", ctrl.ShopController.QueryShopByType)
+		shop.GET("/:id", ctrl.ShopController.GetShopById)
+		shop.POST("/", ctrl.ShopController.CreateShop)
+		shop.PUT("/update", ctrl.ShopController.UpdateShop)
+	}
+
 	// 需要登录的路由（使用JWT鉴权中间件）
 	authApi := api.Group("")
 	authApi.Use(middleware.JwtAuth())
@@ -42,17 +55,6 @@ func SetupRouter(ctrl *controller.Controller) *gin.Engine {
 			authBlog.GET("/hot", ctrl.BlogController.QueryHotBlog)
 			authBlog.GET("/:id", ctrl.BlogController.QueryBlogById)
 			authBlog.GET("/likes/:id", ctrl.BlogController.QueryBlogLikes)
-		}
-
-		authShopType := authApi.Group("/shop-type")
-		{
-			authShopType.GET("/list", ctrl.ShopTypeController.GetShopTypeList)
-		}
-
-		shop := authApi.Group("/shop")
-		{
-			shop.GET("/of/type", ctrl.ShopController.QueryShopByType)
-			shop.GET("/:id", ctrl.ShopController.GetShopById)
 		}
 
 		voucher := authApi.Group("/voucher")

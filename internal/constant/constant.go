@@ -31,6 +31,7 @@ const (
 	LOGIN_BLACK_KEY = "login:black:" // Token黑名单前缀（已登出的Token）
 	CACHE_SHOP_KEY  = "cache:shop:"  // 商铺缓存的Redis键前缀
 	BLOG_LIKED_KEY  = "blog:liked:"  // 博客点赞用户集合前缀，后面跟博客ID
+	LOCK_SHOP_KEY   = "lock:shop:"   // 商铺缓存互斥锁前缀
 )
 
 // Redis TTL 过期时间
@@ -38,6 +39,8 @@ const (
 	LOGIN_CODE_TTL = 2 * time.Minute  // 登录验证码过期时间
 	LOGIN_USER_TTL = 30 * time.Minute // 登录用户过期时间
 	CACHE_SHOP_TTL = 30 * time.Minute // 商铺缓存过期时间
+	CACHE_NULL_TTL = 5 * time.Minute  // 缓存空值的过期时间，避免缓存穿透
+	LOCK_SHOP_TTL  = 10 * time.Second // 商铺缓存互斥锁过期时间，防止缓存击穿
 )
 
 // 分页常量

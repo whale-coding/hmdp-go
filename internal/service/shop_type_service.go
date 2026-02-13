@@ -24,6 +24,6 @@ func NewShopTypeService(repo *repository.Repository) ShopTypeService {
 func (s *shopTypeService) GetShopTypeList() ([]*model.ShopType, error) {
 	// 调用仓库层查询店铺类型列表，按sort字段升序
 	shopTypes, err := s.repo.ShopTypeRepo.FindAllOrderBySort()
-
+	// 添加缓存
 	return shopTypes, err
 }

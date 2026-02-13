@@ -8,12 +8,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
 )
 
 // RedisClient 全局Redis客户端
 var RedisClient *redis.Client
 var Ctx = context.Background()
+
+// Redsync 全局分布式锁客户端
+var rs *redsync.Redsync
 
 // InitRedis 初始化Redis
 func InitRedis() {
@@ -34,6 +39,10 @@ func InitRedis() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
+
+	// 初始化 Redsync 分布式锁
+	pool := goredis.NewPool(RedisClient)
+	rs = redsync.New(pool)
 
 	log.Println("Successfully connected to Redis")
 }
@@ -195,6 +204,29 @@ func SetJSON(key string, value interface{}, expire time.Duration) error {
 		return err
 	}
 	return Set(key, data, expire)
+}
+
+// ==================== 分布式锁操作 ====================
+
+// AcquireLock 获取分布式锁
+// lockKey: 锁的键名
+// 返回值: (mutex, error)
+func AcquireLock(lockKey string) (*redsync.Mutex, error) {
+	// Redsync 的 TryLock 是非阻塞的，Lock 是阻塞的
+	// 这里使用 NewMutex 配合 Lock 实现阻塞型锁
+	mutex := rs.NewMutex(lockKey)
+	if err := mutex.Lock(); err != nil {
+		return nil, err
+	}
+	return mutex, nil
+}
+
+// ReleaseLock 释放分布式锁
+func ReleaseLock(mutex *redsync.Mutex) error {
+	if _, err := mutex.Unlock(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetJSON 获取JSON对象

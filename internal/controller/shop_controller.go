@@ -16,6 +16,8 @@ import (
 type ShopController interface {
 	QueryShopByType(ctx *gin.Context)
 	GetShopById(ctx *gin.Context)
+	CreateShop(ctx *gin.Context)
+	UpdateShop(ctx *gin.Context)
 }
 
 // shopController 商铺控制器实现
@@ -72,13 +74,14 @@ func (c *shopController) QueryShopByType(ctx *gin.Context) {
 
 // GetShopById 根据id查询商铺信息
 func (c *shopController) GetShopById(ctx *gin.Context) {
+	// 从路径参数获取商铺ID
 	idStr := ctx.Param("id")
 	id, err := util.StringToUint64(idStr)
 	if err != nil {
 		result.Fail(ctx, constant.ErrCodeInvalidParam, "商铺ID参数错误")
 		return
 	}
-
+	// 调用服务层查询商铺详情
 	res, err := c.svc.ShopService.GetShopById(id)
 	if err != nil {
 		log.Printf("查询商铺详情失败,商铺ID: %d,错误: %v\n", id, err)
@@ -87,4 +90,44 @@ func (c *shopController) GetShopById(ctx *gin.Context) {
 	}
 
 	result.Success(ctx, res)
+}
+
+// 新增商铺信息
+func (c *shopController) CreateShop(ctx *gin.Context) {
+	// 获取参数
+	var shop model.Shop
+	if err := ctx.ShouldBindJSON(&shop); err != nil {
+		result.Fail(ctx, constant.ErrCodeInvalidParam, "请求参数错误")
+		return
+	}
+
+	// 调用服务层创建商铺
+	err := c.svc.ShopService.CreateShop(&shop)
+	if err != nil {
+		log.Printf("创建商铺失败,商铺信息: %+v,错误: %v\n", shop, err)
+		result.Fail(ctx, constant.ErrCodeServerInternal, "创建商铺失败")
+		return
+	}
+
+	result.Success(ctx, nil)
+}
+
+// 修改商铺信息
+func (c *shopController) UpdateShop(ctx *gin.Context) {
+	// 获取参数
+	var shop model.Shop
+	if err := ctx.ShouldBindJSON(&shop); err != nil {
+		result.Fail(ctx, constant.ErrCodeInvalidParam, "请求参数错误")
+		return
+	}
+
+	// 调用服务层更新商铺
+	err := c.svc.ShopService.UpdateShop(&shop)
+	if err != nil {
+		log.Printf("更新商铺失败,商铺信息: %+v,错误: %v\n", shop, err)
+		result.Fail(ctx, constant.ErrCodeServerInternal, "更新商铺失败")
+		return
+	}
+
+	result.Success(ctx, nil)
 }
